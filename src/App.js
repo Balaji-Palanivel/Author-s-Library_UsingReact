@@ -3,19 +3,19 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './App.css';
 import $ from 'jquery';
-import Popup from './Popup';
-
 class App extends Component {
 constructor(){
   super()
   this.state = { 
                 Lib: [],
-                empty : '--'
+                empty : '--',
+                authorName : "hi",
+                author : []                
                };
-  this.ajaxcall= this.ajaxcall.bind(this);
+  this.ajaxcall= this.ajaxcall.bind(this);  
   }
 
-  ajaxcall() {
+  ajaxcall() { 
     let x = document.getElementById("cc").value;
     if (x === "") { alert("Plase give some name for search"); }
     else {
@@ -39,19 +39,40 @@ constructor(){
 
 
      }
+    }
+     ajaxcall_1(val) {   
+        let A_N = val.target.innerText;  
+        let u = 'https://openlibrary.org/search/authors.json?q=';
+        let URL = u + A_N;     
+        $.ajax({
+          url: URL,
+          contentType: "application/json"
+        })
+          .done(
+            function(Data) {
+              this.setState({ author : Data.docs});
+              console.log(this.state.author);
+            }.bind(this)
+          )
+          .fail(
+            function(datas) {
+              
+            }.bind(this)
+          );        
+      }
 
-  }
+  
   findvalid(Val){
     const detail = (Val === undefined) ? this.state.empty : Val;
     return detail;
   }
-
+ 
   render() {
     const UserData = this.state.Lib.map((author,index) => 
     <tr key={index}>
       <td>{index+1}</td>
-      <td onClick={Popup(this.innerText)}>{author.name}</td>
-      <td id="btnSelect">{author.type}</td>
+      <td onClick={this.ajaxcall_1}>{author.name}</td>
+      <td>{author.type}</td>
       <td>{this.findvalid(author.birth_date)}</td>
       <td>{author.work_count}</td>              
     </tr>
@@ -99,6 +120,115 @@ export default App;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import React, { Component } from 'react';
+// import 'bootstrap/dist/css/bootstrap.min.css';
+// import 'bootstrap/dist/js/bootstrap.bundle.min';
+// import './App.css';
+// import $ from 'jquery';
+// import Popup from './Popup';
+
+// class App extends Component {
+// constructor(){
+//   super()
+//   this.state = { 
+//                 Lib: [],
+//                 empty : '--'
+//                };
+//   this.ajaxcall= this.ajaxcall.bind(this);
+//   }
+
+//   ajaxcall() { 
+//     let x = document.getElementById("cc").value;
+//     if (x === "") { alert("Plase give some name for search"); }
+//     else {
+//       let u = 'https://openlibrary.org/search/authors.json?q=';
+//       let URL = u + x;   
+
+//       $.ajax({
+//         url: URL,
+//         contentType: "application/json"
+//       })
+//         .done(
+//           function(data) {
+//             this.setState({ Lib : data.docs });
+//           }.bind(this)
+//         )
+//         .fail(
+//           function(datas) {
+            
+//           }.bind(this)
+//         );
+
+
+//      }
+
+//   }
+//   findvalid(Val){
+//     const detail = (Val === undefined) ? this.state.empty : Val;
+//     return detail;
+//   }
+//   getdata(val)
+//   {
+//       const Aut_Name = val.target.innerText;
+//       Popup(Aut_Name);
+//   }
+//   render() {
+//     const UserData = this.state.Lib.map((author,index) => 
+//     <tr key={index}>
+//       <td>{index+1}</td>
+//       <td onClick={this.getdata}>{author.name}</td>
+//       <td>{author.type}</td>
+//       <td>{this.findvalid(author.birth_date)}</td>
+//       <td>{author.work_count}</td>              
+//     </tr>
+//   )
+
+//     return (
+//       <div ><center>
+//         <div className="col-sm-4">
+//           <div className="search">
+//             <i className="fa fa-search"></i>
+//             <input type="text" id="cc" className="form-control" placeholder="Search.." />
+//             <button onClick={this.ajaxcall} className="btn btn-primary">Search</button>
+//           </div>
+//         </div></center>
+//         <br />
+//         <div id="Table" className="container">
+//           <table className="table table-hover table-dark">          
+//             <thead>
+//               <tr>
+//                 <td>S.No</td>
+//                 <td>Name</td>
+//                 <td>Type</td>
+//                 <td>DOB</td>
+//                 <td>Work count</td>                
+//               </tr>
+//           </thead>
+//           <tbody>{UserData}</tbody>
+//           </table>
+//         </div>
+        
+
+//       </div >
+//     );
+//   }
+// }
+
+// export default App;
 
 
 //---------------------------------------------------------------------------------------------------------------------------------------
