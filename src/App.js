@@ -3,19 +3,27 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import './App.css';
 import $ from 'jquery';
+import Popup from './Popup';
+
+
 class App extends Component {
-constructor(){
-  super()
+  
+constructor(props){
+  super(props)
+ 
   this.state = { 
                 Lib: [],
-                empty : '--',
-                authorName : "hi",
-                author : []                
+                empty : '--',               
+                author_detail : [],          
+                check : 0   ,
+                load : false              
                };
   this.ajaxcall= this.ajaxcall.bind(this);  
+  this.ajaxcall_1= this.ajaxcall_1.bind(this); 
   }
 
-  ajaxcall() { 
+  ajaxcall() {     
+    this.setState({load : true});
     let x = document.getElementById("cc").value;
     if (x === "") { alert("Plase give some name for search"); }
     else {
@@ -29,57 +37,54 @@ constructor(){
         .done(
           function(data) {
             this.setState({ Lib : data.docs });
+            $("#loading").hide();
           }.bind(this)
         )
         .fail(
           function(datas) {
-            
+            $("#loading").hide();
           }.bind(this)
         );
-
-
      }
+     
     }
+
      ajaxcall_1(val) {   
+  
         let A_N = val.target.innerText;  
-        let u = 'https://openlibrary.org/search/authors.json?q=';
-        let URL = u + A_N;     
+        let u2 = 'https://openlibrary.org/search/authors.json?q=';
+        let URL2 = u2 + A_N;     
         $.ajax({
-          url: URL,
+          url: URL2,
           contentType: "application/json"
         })
           .done(
-            function(Data) {
-              this.setState({ author : Data.docs});
-              console.log(this.state.author);
+            function(data) {
+              this.setState({ author_detail : data.docs[0],
+                              check : 1});
             }.bind(this)
           )
           .fail(
             function(datas) {
               
             }.bind(this)
-          );        
+          );   
+          $("#ca").show();               
       }
 
   
   findvalid(Val){
-    const detail = (Val === undefined) ? this.state.empty : Val;
+    
+    const detail = (Val === undefined) ? "--" : Val;
     return detail;
   }
- 
-  render() {
-    const UserData = this.state.Lib.map((author,index) => 
-    <tr key={index}>
-      <td>{index+1}</td>
-      <td onClick={this.ajaxcall_1}>{author.name}</td>
-      <td>{author.type}</td>
-      <td>{this.findvalid(author.birth_date)}</td>
-      <td>{author.work_count}</td>              
-    </tr>
-  )
-
+    
+  render() {      
+    
     return (
-      <div ><center>
+      <>
+      <div >
+        <br/><center>
         <div className="col-sm-4">
           <div className="search">
             <i className="fa fa-search"></i>
@@ -87,24 +92,42 @@ constructor(){
             <button onClick={this.ajaxcall} className="btn btn-primary">Search</button>
           </div>
         </div></center>
-        <br />
-        <div id="Table" className="container">
-          <table className="table table-hover table-dark">          
-            <thead>
-              <tr>
-                <td>S.No</td>
-                <td>Name</td>
-                <td>Type</td>
-                <td>DOB</td>
-                <td>Work count</td>                
-              </tr>
-          </thead>
-          <tbody>{UserData}</tbody>
-          </table>
-        </div>
-        
-
-      </div >
+        <br/><br/>
+      </div>
+      {this.state.load == true ? <div id="loading">
+        <div className="centerdiv">
+            <img src="https://acegif.com/wp-content/uploads/loading-25.gif" style={{width:'50px',height:'50px'}} />
+        </div> 
+    </div>: " "}
+      <div >
+      <div id="Table" className="container">
+    { this.state.Lib.length > 0  ? <table className="table table-hover table-dark">          
+      <thead>
+        <tr>
+          <td>S.No <i class="bi bi-sort-up"></i></td>
+          <td>Name</td>
+          <td>Type</td>
+          <td>DOB</td>
+          <td>Work count</td>                
+        </tr>
+    </thead>
+    <tbody>{this.state.Lib ? this.state.Lib.map((author,index) => 
+    <tr key={index}>
+    <td>{index+1}</td>
+    <td onClick={this.ajaxcall_1}>{author.name}</td>
+    <td>{author.type}</td>
+    <td>{this.findvalid(author.birth_date)}</td>
+    <td>{author.work_count}</td>              
+    </tr>
+          ): "" }
+  </tbody>
+  </table> : " "}
+  </div>
+      </div>
+      <div>
+        <Popup pr={this.state}/>
+      </div>
+      </>
     );
   }
 }
@@ -141,7 +164,7 @@ export default App;
 // import $ from 'jquery';
 // import Popup from './Popup';
 
-// class App extends Component {
+// className App extends Component {
 // constructor(){
 //   super()
 //   this.state = { 
@@ -199,16 +222,16 @@ export default App;
 
 //     return (
 //       <div ><center>
-//         <div className="col-sm-4">
-//           <div className="search">
-//             <i className="fa fa-search"></i>
-//             <input type="text" id="cc" className="form-control" placeholder="Search.." />
-//             <button onClick={this.ajaxcall} className="btn btn-primary">Search</button>
+//         <div classNameName="col-sm-4">
+//           <div classNameName="search">
+//             <i classNameName="fa fa-search"></i>
+//             <input type="text" id="cc" classNameName="form-control" placeholder="Search.." />
+//             <button onClick={this.ajaxcall} classNameName="btn btn-primary">Search</button>
 //           </div>
 //         </div></center>
 //         <br />
-//         <div id="Table" className="container">
-//           <table className="table table-hover table-dark">          
+//         <div id="Table" classNameName="container">
+//           <table classNameName="table table-hover table-dark">          
 //             <thead>
 //               <tr>
 //                 <td>S.No</td>
@@ -233,7 +256,7 @@ export default App;
 
 //---------------------------------------------------------------------------------------------------------------------------------------
 
-// class App extends Component {
+// className App extends Component {
 //   this.state = { Array : [] }
 
 //---------------------------------------------------------------------------------------------------------------------------------------
