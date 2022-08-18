@@ -13,7 +13,6 @@ export default class Popup extends Component{
     
   }
   closeProfile() {
-	
     document.getElementById("ca").style.display="none";
   }
 

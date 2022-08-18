@@ -16,7 +16,9 @@ constructor(props){
                 empty : '--',               
                 author_detail : [],          
                 check : 0   ,
-                load : false              
+                load : false  ,  
+                work_count : []  
+                
                };
   this.ajaxcall= this.ajaxcall.bind(this);  
   this.ajaxcall_1= this.ajaxcall_1.bind(this); 
@@ -50,7 +52,7 @@ constructor(props){
     }
 
      ajaxcall_1(val) {   
-  
+        
         let A_N = val.target.innerText;  
         let u2 = 'https://openlibrary.org/search/authors.json?q=';
         let URL2 = u2 + A_N;     
@@ -62,14 +64,14 @@ constructor(props){
             function(data) {
               this.setState({ author_detail : data.docs[0],
                               check : 1});
+              document.getElementById("ca").style.display="block";
             }.bind(this)
           )
           .fail(
             function(datas) {
               
             }.bind(this)
-          );   
-          $("#ca").show();               
+          );                
       }
 
   
@@ -77,8 +79,12 @@ constructor(props){
     
     const detail = (Val === undefined) ? "--" : Val;
     return detail;
+  } 
+  sort(){
+    var arr =  this.state.Lib.sort((a, b) =>a.work_count > b.work_count ? 1 : -1);
+    this.setState({Lib : arr });
   }
-    
+
   render() {      
     
     return (
@@ -101,17 +107,18 @@ constructor(props){
     </div>: " "}
       <div >
       <div id="Table" className="container">
-    { this.state.Lib.length > 0  ? <table className="table table-hover table-dark">          
+    { this.state.Lib.length > 0  ? <table className="table table-hover table-light">          
       <thead>
         <tr>
-          <td>S.No <i class="bi bi-sort-up"></i></td>
+          <td>S.No <i className="fas fa-sort"></i></td>
           <td>Name</td>
           <td>Type</td>
           <td>DOB</td>
-          <td>Work count</td>                
+          <td onClick={this.sort(this.state.Lib)}>Work count</td>                
         </tr>
     </thead>
-    <tbody>{this.state.Lib ? this.state.Lib.map((author,index) => 
+    <tbody>{this.state.Lib ? this.state.Lib.sort((a, b) =>
+        a.work_count > b.work_count ? 1 : -1).map((author,index) => 
     <tr key={index}>
     <td>{index+1}</td>
     <td onClick={this.ajaxcall_1}>{author.name}</td>
