@@ -17,7 +17,8 @@ constructor(props){
                 author_detail : [],          
                 check : 0   ,
                 load : false  ,  
-                work_count : []  
+                work_count : []  ,
+                order : "Asc"
                 
                };
   this.ajaxcall= this.ajaxcall.bind(this);  
@@ -80,14 +81,22 @@ constructor(props){
     const detail = (Val === undefined) ? "--" : Val;
     return detail;
   } 
-  sort(){
-    var arr =  this.state.Lib.sort((a, b) =>a.work_count > b.work_count ? 1 : -1);
-    this.setState({Lib : arr });
+
+  Sorted_table(col){
+     if (this.state.order == "Asc"){
+      const arr =  [...this.state.Lib].sort((a, b) => (a[col].toLowerCase() < b[col].toLowerCase() ? -1 : 1) );  
+      this.setState({Lib : arr , order : "Dec"});
+     }
+     else {
+      const arr =  [...this.state.Lib].sort((a, b) => (a[col].toLowerCase() > b[col].toLowerCase() ? -1 : 1) );
+      this.setState({Lib : arr , order : "Asc"});
+     }
+     
   }
 
   render() {      
     
-    return (
+    return (1 
       <>
       <div >
         <br/><center>
@@ -110,25 +119,25 @@ constructor(props){
     { this.state.Lib.length > 0  ? <table className="table table-hover table-light">          
       <thead>
         <tr>
-          <td>S.No <i className="fas fa-sort"></i></td>
-          <td>Name</td>
+          <td>S.No </td>
+          <td onClick={this.Sorted_table("name")}>Name</td>
           <td>Type</td>
           <td>DOB</td>
-          <td onClick={this.sort(this.state.Lib)}>Work count</td>                
+          <td >Work count</td>                
         </tr>
     </thead>
-    <tbody>{this.state.Lib ? this.state.Lib.sort((a, b) =>
-        a.work_count > b.work_count ? 1 : -1).map((author,index) => 
+    <tbody>{this.state.Lib ? this.state.Lib.map((author,index) => 
     <tr key={index}>
     <td>{index+1}</td>
     <td onClick={this.ajaxcall_1}>{author.name}</td>
     <td>{author.type}</td>
     <td>{this.findvalid(author.birth_date)}</td>
-    <td>{author.work_count}</td>              
+    <td >{author.work_count}</td>              
     </tr>
-          ): "" }
+          ): " No Data Here" }
   </tbody>
   </table> : " "}
+
   </div>
       </div>
       <div>
