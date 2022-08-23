@@ -21,6 +21,7 @@ constructor(props){
                 order : "Asc"
                 
                };
+
   this.ajaxcall= this.ajaxcall.bind(this);  
   this.ajaxcall_1= this.ajaxcall_1.bind(this); 
   }
@@ -81,32 +82,49 @@ constructor(props){
     const detail = (Val === undefined) ? "--" : Val;
     return detail;
   } 
-
-  Sorted_table(col){
-     if (this.state.order == "Asc"){
-      const arr =  [...this.state.Lib].sort((a, b) => (a[col].toLowerCase() < b[col].toLowerCase() ? -1 : 1) );  
-      this.setState({Lib : arr , order : "Dec"});
-     }
-     else {
-      const arr =  [...this.state.Lib].sort((a, b) => (a[col].toLowerCase() > b[col].toLowerCase() ? -1 : 1) );
-      this.setState({Lib : arr , order : "Asc"});
+ 
+  sorting_table(event, sortKey){
+    if (this.state.order == "Asc"){
+    const data = this.state.Lib;
+    data.sort((a,b) => a[sortKey].toString().localeCompare(b[sortKey].toString()))
+    this.setState({Lib : data, order : "Dec"})
+      }
+    if (this.state.order == "Dec"){
+      const data = this.state.Lib;
+      data.sort((a,b) => b[sortKey].toString().localeCompare(a[sortKey].toString()))
+      this.setState({Lib : data , order : "Asc"});
      }
      
-  }
+   }
+  sorting_table_1(event, sortKey){
+    if (this.state.order == "Asc"){
+    const data = this.state.Lib;
+    data.sort((a,b) => a[sortKey] - b[sortKey])
+    this.setState({Lib : data, order : "Dec"})
+      }
+    if (this.state.order == "Dec"){
+      const data = this.state.Lib;
+      data.sort((a,b) => b[sortKey] - a[sortKey])
+      this.setState({Lib : data , order : "Asc"});
+     }
+     
+   }
 
   render() {      
-    
-    return (1 
-      <>
+    var newdata = this.state.Lib;
+    return (
+    <>
       <div >
         <br/><center>
         <div className="col-sm-4">
           <div className="search">
-            <i className="fa fa-search"></i>
             <input type="text" id="cc" className="form-control" placeholder="Search.." />
             <button onClick={this.ajaxcall} className="btn btn-primary">Search</button>
           </div>
-        </div></center>
+        </div>
+        </center>
+        
+       
         <br/><br/>
       </div>
       {this.state.load == true ? <div id="loading">
@@ -114,19 +132,19 @@ constructor(props){
             <img src="https://acegif.com/wp-content/uploads/loading-25.gif" style={{width:'50px',height:'50px'}} />
         </div> 
     </div>: " "}
-      <div >
+    
       <div id="Table" className="container">
     { this.state.Lib.length > 0  ? <table className="table table-hover table-light">          
       <thead>
         <tr>
           <td>S.No </td>
-          <td onClick={this.Sorted_table("name")}>Name</td>
-          <td>Type</td>
-          <td>DOB</td>
-          <td >Work count</td>                
+          <td >Name <i onClick={e => this.sorting_table(e, "name")} class="fa fa-fw fa-sort"></i></td>
+          <td>Type </td>
+          <td>DOB </td>
+          <td >Work count <i onClick={e => this.sorting_table_1(e, "work_count")} class="fa fa-fw fa-sort"></i></td>                
         </tr>
     </thead>
-    <tbody>{this.state.Lib ? this.state.Lib.map((author,index) => 
+    <tbody>{this.state.Lib ? newdata.map((author,index) => 
     <tr key={index}>
     <td>{index+1}</td>
     <td onClick={this.ajaxcall_1}>{author.name}</td>
@@ -139,11 +157,11 @@ constructor(props){
   </table> : " "}
 
   </div>
-      </div>
+      
       <div>
         <Popup pr={this.state}/>
       </div>
-      </>
+    </>  
     );
   }
 }
