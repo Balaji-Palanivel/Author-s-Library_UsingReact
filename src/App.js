@@ -18,8 +18,9 @@ constructor(props){
                 check : 0   ,
                 load : false  ,  
                 work_count : []  ,
-                order : "Asc"
-                
+                order : "Asc",
+                searchInput : "" ,
+                FilteredTable : []              
                };
 
   this.ajaxcall= this.ajaxcall.bind(this);  
@@ -37,7 +38,7 @@ constructor(props){
       $.ajax({
         url: URL,
         contentType: "application/json"
-      })
+      })                                                                                      //Ajax Call for main table
         .done(
           function(data) {
             this.setState({ Lib : data.docs });
@@ -63,7 +64,7 @@ constructor(props){
           contentType: "application/json"
         })
           .done(
-            function(data) {
+            function(data) {                                                                //Ajax call for profile card
               this.setState({ author_detail : data.docs[0],
                               check : 1});
               document.getElementById("ca").style.display="block";
@@ -79,39 +80,47 @@ constructor(props){
   
   findvalid(Val){
     
-    const detail = (Val === undefined) ? "--" : Val;
+    const detail = (Val === undefined) ? "--" : Val;                                        //findvalid() for data valid or not
     return detail;
   } 
  
   sorting_table(event, sortKey){
-    if (this.state.order == "Asc"){
     const data = this.state.Lib;
-    data.sort((a,b) => a[sortKey].toString().localeCompare(b[sortKey].toString()))
+if(sortKey == "name"){
+    if (this.state.order == "Asc"){    
+    data.sort((a,b) => a[sortKey].localeCompare(b[sortKey]))
     this.setState({Lib : data, order : "Dec"})
       }
-    if (this.state.order == "Dec"){
-      const data = this.state.Lib;
-      data.sort((a,b) => b[sortKey].toString().localeCompare(a[sortKey].toString()))
-      this.setState({Lib : data , order : "Asc"});
+    if (this.state.order == "Dec"){     
+      data.sort((a,b) => b[sortKey].localeCompare(a[sortKey]))
+      this.setState({Lib : data , order : "Asc"});                                          //Sortong_table for sorting
+                    
      }
      
-   }
-  sorting_table_1(event, sortKey){
-    if (this.state.order == "Asc"){
-    const data = this.state.Lib;
+   }  
+  else if(sortKey == "work_count"){
+
+    if (this.state.order == "Asc"){    
     data.sort((a,b) => a[sortKey] - b[sortKey])
     this.setState({Lib : data, order : "Dec"})
       }
-    if (this.state.order == "Dec"){
-      const data = this.state.Lib;
+    if (this.state.order == "Dec"){      
       data.sort((a,b) => b[sortKey] - a[sortKey])
       this.setState({Lib : data , order : "Asc"});
      }
      
    }
+  }
+ 
+searchByName = val =>{
+  this.setState({searchInput : val.target.value})
+  console.log(val.target.value);  
 
+  let filter = this.state.Lib.filter(value => (value.name).toLowerCase().includes((this.state.searchInput).toLowerCase()));    
+  this.setState({FilteredTable : filter})
+  }
+ 
   render() {      
-    var newdata = this.state.Lib;
     return (
     <>
       <div >
@@ -120,8 +129,13 @@ constructor(props){
           <div className="search">
             <input type="text" id="cc" className="form-control" placeholder="Search.." />
             <button onClick={this.ajaxcall} className="btn btn-primary">Search</button>
+            
           </div>
+         
         </div>
+        {this.state.Lib.length > 0 ? <div style={{top:"50px",left :"200px"}} className="input-group mb-3"><br/>    
+   <input type="text" placeholder="Searh By Names" onChange={e => this.searchByName(e) }/>
+  </div> : ""}
         </center>
         
        
@@ -134,17 +148,18 @@ constructor(props){
     </div>: " "}
     
       <div id="Table" className="container">
-    { this.state.Lib.length > 0  ? <table className="table table-hover table-light">          
+    {  
+   this.state.Lib.length > 0   ? <table className="table table-hover table-light">          
       <thead>
         <tr>
           <td>S.No </td>
-          <td >Name <i onClick={e => this.sorting_table(e, "name")} class="fa fa-fw fa-sort"></i></td>
+          <td >Name <i onClick={e => this.sorting_table(e, "name")} className="fa fa-fw fa-sort"></i></td>
           <td>Type </td>
           <td>DOB </td>
-          <td >Work count <i onClick={e => this.sorting_table_1(e, "work_count")} class="fa fa-fw fa-sort"></i></td>                
+          <td >Work count <i onClick={e => this.sorting_table(e, "work_count")} className="fa fa-fw fa-sort"></i></td>                
         </tr>
     </thead>
-    <tbody>{this.state.Lib ? newdata.map((author,index) => 
+    <tbody>{this.state.searchInput.length > 0 ? this.state.FilteredTable.map((author,index) => 
     <tr key={index}>
     <td>{index+1}</td>
     <td onClick={this.ajaxcall_1}>{author.name}</td>
@@ -152,7 +167,15 @@ constructor(props){
     <td>{this.findvalid(author.birth_date)}</td>
     <td >{author.work_count}</td>              
     </tr>
-          ): " No Data Here" }
+          ): this.state.Lib || this.state.FilteredTable.length == 0 ? this.state.Lib.map((author,index) => 
+          <tr key={index}>
+          <td>{index+1}</td>
+          <td onClick={this.ajaxcall_1}>{author.name}</td>
+          <td>{author.type}</td>
+          <td>{this.findvalid(author.birth_date)}</td>
+          <td >{author.work_count}</td>              
+          </tr>
+                ) : " "}
   </tbody>
   </table> : " "}
 
@@ -167,178 +190,3 @@ constructor(props){
 }
 
 export default App;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { Component } from 'react';
-// import 'bootstrap/dist/css/bootstrap.min.css';
-// import 'bootstrap/dist/js/bootstrap.bundle.min';
-// import './App.css';
-// import $ from 'jquery';
-// import Popup from './Popup';
-
-// className App extends Component {
-// constructor(){
-//   super()
-//   this.state = { 
-//                 Lib: [],
-//                 empty : '--'
-//                };
-//   this.ajaxcall= this.ajaxcall.bind(this);
-//   }
-
-//   ajaxcall() { 
-//     let x = document.getElementById("cc").value;
-//     if (x === "") { alert("Plase give some name for search"); }
-//     else {
-//       let u = 'https://openlibrary.org/search/authors.json?q=';
-//       let URL = u + x;   
-
-//       $.ajax({
-//         url: URL,
-//         contentType: "application/json"
-//       })
-//         .done(
-//           function(data) {
-//             this.setState({ Lib : data.docs });
-//           }.bind(this)
-//         )
-//         .fail(
-//           function(datas) {
-            
-//           }.bind(this)
-//         );
-
-
-//      }
-
-//   }
-//   findvalid(Val){
-//     const detail = (Val === undefined) ? this.state.empty : Val;
-//     return detail;
-//   }
-//   getdata(val)
-//   {
-//       const Aut_Name = val.target.innerText;
-//       Popup(Aut_Name);
-//   }
-//   render() {
-//     const UserData = this.state.Lib.map((author,index) => 
-//     <tr key={index}>
-//       <td>{index+1}</td>
-//       <td onClick={this.getdata}>{author.name}</td>
-//       <td>{author.type}</td>
-//       <td>{this.findvalid(author.birth_date)}</td>
-//       <td>{author.work_count}</td>              
-//     </tr>
-//   )
-
-//     return (
-//       <div ><center>
-//         <div classNameName="col-sm-4">
-//           <div classNameName="search">
-//             <i classNameName="fa fa-search"></i>
-//             <input type="text" id="cc" classNameName="form-control" placeholder="Search.." />
-//             <button onClick={this.ajaxcall} classNameName="btn btn-primary">Search</button>
-//           </div>
-//         </div></center>
-//         <br />
-//         <div id="Table" classNameName="container">
-//           <table classNameName="table table-hover table-dark">          
-//             <thead>
-//               <tr>
-//                 <td>S.No</td>
-//                 <td>Name</td>
-//                 <td>Type</td>
-//                 <td>DOB</td>
-//                 <td>Work count</td>                
-//               </tr>
-//           </thead>
-//           <tbody>{UserData}</tbody>
-//           </table>
-//         </div>
-        
-
-//       </div >
-//     );
-//   }
-// }
-
-// export default App;
-
-
-//---------------------------------------------------------------------------------------------------------------------------------------
-
-// className App extends Component {
-//   this.state = { Array : [] }
-
-//---------------------------------------------------------------------------------------------------------------------------------------
-
-   // axios.get(URL)
-      //   .then(res => {
-      //     const persons = res.data;
-      //     console.log(persons)
-      //     for (const [key, value] of Object.entries(persons)) {
-      //             if (key == "numFound" && value == 0) { document.getElementById("msg").innerHTML = "No Author's are available in this name "; }
-      //             else {
-      //               if (key == "docs") {
-      //                 console.log(value);
-      //                 this.setState({ person : value });
-      //                 console.log("SET_STATE Passed..");
-      
-      //               }
-      //             }
-      //           }
-      //   })
-
-//---------------------------------------------------------------------------------------------------------------------------------------
-    //   $.ajax({
-
-    //     url: URL,
-    //     type: "GET",
-    //     success: function (data) {
-    //       console.log("data1",data);
-    //         this.setState({ Lib : data });
-    //         console.log("data",data);
-    //         console.log("Passd",this.state.Lib);
-
-    //       // for (const [key, value] of Object.entries(data)) {
-    //       //   if (key == "numFound" && value == 0) { document.getElementById("msg").innerHTML = "No Author's are available in this name "; }
-    //       //   else {
-    //       //     if (key == "docs") {
-    //       //       console.log(value);
-    //       //       this.setState({ Array : value });
-    //       //       console.log("hiiiiiii");
-
-    //       //     }
-    //       //   }
-    //       // }
-    //     },
-
-    //     error: function (error) {
-    //       console.log(`Error ${error}`);
-    //       $("#loading").hide();
-    //     }
-    //   });
-  //---------------------------------------------------------------------------------------------------------------------------------------
