@@ -25,6 +25,7 @@ constructor(props){
 
   this.ajaxcall= this.ajaxcall.bind(this);  
   this.ajaxcall_1= this.ajaxcall_1.bind(this); 
+  this.searchByName= this.searchByName.bind(this); 
   }
 
   ajaxcall() {     
@@ -41,7 +42,7 @@ constructor(props){
       })                                                                                      //Ajax Call for main table
         .done(
           function(data) {
-            this.setState({ Lib : data.docs });
+            this.setState({ Lib : data.docs , FilteredTable : []  });
             $("#loading").hide();
           }.bind(this)
         )
@@ -112,14 +113,13 @@ if(sortKey == "name"){
    }
   }
  
-searchByName = val =>{
-  this.setState({searchInput : val.target.value})
-  console.log(val.target.value);  
-
-  let filter = this.state.Lib.filter(value => (value.name).toLowerCase().includes((this.state.searchInput).toLowerCase()));    
-  this.setState({FilteredTable : filter})
+searchByName (val) {
+  this.setState(() => ({searchInput : val.target.value}));
+  let a = this.state.Lib.filter(value => value.name.toLowerCase().includes(val.target.value.toLowerCase()));   
+  console.log(a,'aaa')
+  this.setState(() => ({FilteredTable : a}))
   }
- 
+
   render() {      
     return (
     <>
@@ -134,8 +134,9 @@ searchByName = val =>{
          
         </div>
         {this.state.Lib.length > 0 ? <div style={{top:"50px",left :"200px"}} className="input-group mb-3"><br/>    
-   <input type="text" placeholder="Searh By Names" onChange={e => this.searchByName(e) }/>
-  </div> : ""}
+   <input type="text" id="xy" placeholder="Searh By Names"  onChange={(e) => this.searchByName(e) }/>
+  </div> 
+  : ""}
         </center>
         
        
@@ -167,7 +168,7 @@ searchByName = val =>{
     <td>{this.findvalid(author.birth_date)}</td>
     <td >{author.work_count}</td>              
     </tr>
-          ): this.state.Lib || this.state.FilteredTable.length == 0 ? this.state.Lib.map((author,index) => 
+          ): this.state.Lib ? this.state.Lib.map((author,index) => 
           <tr key={index}>
           <td>{index+1}</td>
           <td onClick={this.ajaxcall_1}>{author.name}</td>
